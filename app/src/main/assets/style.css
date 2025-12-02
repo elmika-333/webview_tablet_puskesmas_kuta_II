@@ -1,0 +1,271 @@
+:root {
+  --color-primary: #009e50;
+  --color-accent: #0b8a41;
+  --color-white: #ffffff;
+  --color-gray: #aaa;
+  --color-border: #ccc;
+}
+
+/* FULL BACKGROUND */
+/* Import font Poppins */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+  background: url("img/bgticket.jpg") no-repeat center center / cover;
+  background-size: 1280px 800px;
+
+  font-family: "Poppins", sans-serif;
+}
+
+/* TANGGAL KIRI ATAS */
+#dateBox {
+  position: absolute;
+  top: 6%;
+  left: 5.2%;
+  color: var(--color-white);
+  font-weight: bold;
+}
+
+#dayName {
+  font-size: 2.6vw;
+}
+#fullDate {
+  font-size: 2.3vw;
+}
+
+/* LOGO KANAN ATAS */
+#logoTop {
+  width: 35%;
+  position: absolute;
+  right: 1.2%;
+  top: 4%;
+  display: flex;
+  align-items: center;
+  gap: 3vw;
+}
+
+#logoTop img {
+  width: 8vw;
+  cursor: pointer;
+  z-index: 20;
+}
+
+#instansiText {
+  font-size: 3.2vw;
+  font-weight: bold;
+  color: var(--color-accent);
+  pointer-events: none;
+  line-height: 105%;
+}
+
+/* INSTRUKSI TENGAH */
+#instruction {
+  position: absolute;
+  left: 5.2%;
+  top: 59%;
+  width: 55%;
+  font-size: 2.2vw;
+  color: var(--color-primary);
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+/* BUTTON SERVICES */
+#btnWrapper {
+  position: absolute;
+  top: 55%;
+  right: 6%;
+  width: 29.5%;
+  text-align: center;
+}
+
+#btnWrapper img {
+  width: 100%;
+}
+
+#btnText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--color-white);
+  font-size: 2.3vw;
+  font-weight: bold;
+  width: 85%;
+}
+
+/* RUNNING TEXT */
+#runningText {
+  width: 67%;
+  bottom: -0.5%;
+  position: absolute;
+  text-align: center;
+  font-size: 2.3vw;
+  font-weight: bold;
+  color: var(--color-primary);
+}
+
+/* JAM */
+#clockBox {
+  position: absolute;
+  bottom: -0.5%;
+  right: 2%;
+  font-size: 5vw;
+  color: var(--color-white);
+  font-weight: bolder;
+}
+
+/* POPUP SETTINGS */
+#settingsPopup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.hidden {
+  display: none;
+}
+
+.popupBox {
+  background: var(--color-white);
+  width: 45vw;
+  padding: 2rem;
+  border-radius: 18px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+}
+
+.popupBox h2 {
+  margin-bottom: 1rem;
+  font-size: 2vw;
+  color: var(--color-primary);
+}
+
+.popupBox input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  font-size: 1.2vw;
+  border: 1px solid var(--color-border);
+}
+
+.popupButtons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.popupButtons button {
+  width: 48%;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 1.3vw;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#saveSettings {
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: unset;
+}
+
+#closeSettings {
+  background: var(--color-gray);
+  color: var(--color-white);
+  border: unset;
+}
+
+/* POPUP STRUK */
+#ticketPopup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.ticketBox {
+  width: 360px;
+  background: white;
+  padding: 25px;
+  border: 1px solid #000;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+}
+
+.ticketLogo {
+  width: 90px;
+  margin-bottom: 5px;
+}
+
+.ticketInstansi {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.ticketDateTime {
+  font-size: 12px;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+  padding: 6px 0;
+  margin-bottom: 10px;
+
+  display: flex;
+  justify-content: space-between; /* kiri–kanan */
+  align-items: center; /* sejajar vertikal di tengah */
+}
+
+.ticketService {
+  font-size: 17px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.ticketLabel {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.ticketNumber {
+  font-size: 55px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.ticketSisa {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.ticketNote {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+#closeTicketBtn {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px;
+  background: #009e50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+}

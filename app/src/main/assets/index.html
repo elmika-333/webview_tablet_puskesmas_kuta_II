@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticketing</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- TANGGAL -->
+    <div id="dateBox">
+        <div id="dayName"></div>
+        <div id="fullDate"></div>
+    </div>
+
+    <!-- LOGO + INSTANSI -->
+    <div id="logoTop">
+        <img src="img/logo2.png" id="logoSettings">
+        <div id="instansiText">PUSKESMAS KUTA II</div>
+    </div>
+
+    <!-- INSTRUKSI -->
+    <div id="instruction">
+        UNTUK MENGAMBIL NOMOR ANTRIAN,<br>
+        TEKAN TOMBOL PENDAFTARAN DI SAMPING INI
+    </div>
+
+    <!-- TOMBOL PENDAFTARAN -->
+    <div id="btnWrapper">
+        <img src="img/button1.png" id="mainBtn">
+        <span id="btnText">PENDAFTARAN</span>
+    </div>
+
+    <!-- RUNNING TEXT -->
+    <div id="runningText">
+        <marquee id="runText">SELAMAT DATANG DI PUSKESMAS KUTA II – WELCOME TO PUSKESMAS KUTA II</marquee>
+    </div>
+
+    <!-- JAM -->
+    <div id="clockBox"></div>
+
+    <!-- POPUP SETTINGS -->
+    <div id="settingsPopup" class="hidden">
+        <div class="popupBox">
+            <h2>Pengaturan</h2>
+
+            <label>Kode Layanan</label>
+            <input id="inputKode" type="text" maxlength="3">
+
+            <label>IP Printer</label>
+            <input id="inputPrinterIP" type="text">
+
+            <br><br>
+
+            <label>Instansi</label>
+            <input id="inputInstansi" type="text">
+
+            <label>Nama Layanan</label>
+            <input id="inputBtn" type="text">
+
+            <label>Running Text</label>
+            <input id="inputRunning" type="text">
+
+            <div class="popupButtons">
+                <button id="saveSettings">Simpan</button>
+                <button id="closeSettings">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP STRUK ANTRIAN -->
+    <div id="ticketPopup" class="hidden">
+        <div class="ticketBox">
+            <img src="img/logo2.png" class="ticketLogo">
+
+            <div class="ticketInstansi" id="ticketInstansi">PUSKESMAS KUTA II</div>
+
+            <div class="ticketDateTime">
+                <span id="ticketDateLeft"></span>
+                <span id="ticketClock"></span>
+            </div>
+
+            <div class="ticketService" id="ticketService">PENDAFTARAN</div>
+
+            <div class="ticketLabel">Nomor Antrian Anda</div>
+
+            <div class="ticketNumber" id="ticketNumber">A003</div>
+
+            <div class="ticketSisa">
+                Sisa antrian : <span id="ticketSisa"></span>
+            </div>
+
+            <div class="ticketNote">
+                Silahkan menunggu sampai nomor antrian anda dipanggil.
+            </div>
+
+            <button id="closeTicketBtn">Tutup</button>
+        </div>
+    </div>
+
+
+    <script src="app.js"></script>
+</body>
+
+</html>
