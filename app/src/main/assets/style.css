@@ -107,7 +107,7 @@ body {
 /* RUNNING TEXT */
 #runningText {
   width: 67%;
-  bottom: -0.5%;
+  bottom: 0.5%;
   position: absolute;
   text-align: center;
   font-size: 2.3vw;
@@ -118,7 +118,7 @@ body {
 /* JAM */
 #clockBox {
   position: absolute;
-  bottom: -0.5%;
+  bottom: 0.5%;
   right: 2%;
   font-size: 5vw;
   color: var(--color-white);
