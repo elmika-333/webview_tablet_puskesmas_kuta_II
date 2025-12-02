@@ -10,6 +10,10 @@
 /* Import font Poppins */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
+* {
+  -webkit-text-size-adjust: none;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -18,7 +22,7 @@ body {
   overflow: hidden;
 
   background: url("img/bgticket.jpg") no-repeat center center / cover;
-  background-size: 1280px 800px;
+  background-size: 100% 100%;
 
   font-family: "Poppins", sans-serif;
 }

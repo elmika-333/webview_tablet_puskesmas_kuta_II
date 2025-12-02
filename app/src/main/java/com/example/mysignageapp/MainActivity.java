@@ -27,8 +27,17 @@ public class MainActivity extends AppCompatActivity {
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
-        settings.setUseWideViewPort(true);
-        settings.setLoadWithOverviewMode(true);
+
+        // 🔥 PENTING: SETTING YANG BENAR UNTUK MENCEGAH WEBVIEW MEMBESAR
+        settings.setUseWideViewPort(true);        // biar width mengikuti viewport HTML
+        settings.setLoadWithOverviewMode(false);  // JANGAN overview (bikin auto-zoom)
+        webView.setInitialScale(0);               // scale otomatis sesuai DPI
+
+        // OPSIONAL: Hindari zoom manual
+        settings.setSupportZoom(false);
+        settings.setBuiltInZoomControls(false);
+        settings.setDisplayZoomControls(false);
+
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
@@ -38,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                enableFullScreen(); // pastikan tetap immersive
+                enableFullScreen(); // tetap immersive
                 super.onPageFinished(view, url);
             }
 
@@ -73,6 +82,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // Disable tombol back biar aplikasi signage tidak keluar
+        // Disable tombol back
     }
 }

@@ -19,7 +19,7 @@
 
     <application
         android:allowBackup="false"
-        android:label="SignageApp"
+        android:label="TicketingNS"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
