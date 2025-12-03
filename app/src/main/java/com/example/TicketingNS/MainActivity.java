@@ -15,6 +15,8 @@ import android.webkit.WebViewClient;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
+        settings.setDomStorageEnabled(true;
 
         settings.setUseWideViewPort(true);
         settings.setLoadWithOverviewMode(false);
@@ -127,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // ============================
-        // PRINT GAMBAR BASE64 (LOGO)
+        // PRINT GAMBAR BASE64 (LOGO) - tetap disimpan jika diperlukan
         // ============================
         @JavascriptInterface
         public void printImage(String base64) {
@@ -147,19 +149,44 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        // ============================
+        // PRINT LOGO LANGSUNG DARI ASSETS (TANPA BASE64 / TANPA CANVAS)
+        // Dipanggil dari JS: AndroidPrint.printLogo()
+        // ============================
+        @JavascriptInterface
+        public void printLogo() {
+            try {
+                // buka file dari assets/img/logo2.png
+                InputStream is = ctx.getAssets().open("img/logo2.png");
+                Bitmap bmp = BitmapFactory.decodeStream(is);
+                is.close();
+
+                if (bmp == null) return;
+
+                // convert ke ESC/POS bitmap (raster)
+                byte[] escpos = Utils.decodeBitmap(bmp);
+
+                // kirim data ke printer
+                sendImageRaw(escpos);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         private void sendImageRaw(byte[] imgData) {
             try {
                 String ip = webView.getContext()
                         .getSharedPreferences("prefs", MODE_PRIVATE)
                         .getString("printer", "");
 
-                int port = Integer.parseInt(
-                        webView.getContext()
-                                .getSharedPreferences("prefs", MODE_PRIVATE)
-                                .getString("portPrinter", "9100")
-                );
+                String portStr = webView.getContext()
+                        .getSharedPreferences("prefs", MODE_PRIVATE)
+                        .getString("portPrinter", "9100");
 
-                if (ip.isEmpty()) return;
+                if (ip == null || ip.isEmpty()) return;
+
+                int port = Integer.parseInt(portStr);
 
                 Socket socket = new Socket();
                 socket.connect(new InetSocketAddress(ip, port), 3000);
