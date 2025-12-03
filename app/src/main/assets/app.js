@@ -160,7 +160,6 @@ function cetakTiketESC() {
   const instansi = (localStorage.getItem("instansi") || "").toUpperCase()
   const layanan = (localStorage.getItem("layanan") || "").toUpperCase()
   const nomor = localStorage.getItem("lastNumber") || "-"
-  const sisa = localStorage.getItem("sisaAntrian") || "0"
 
   let d = new Date()
   const tanggal =
@@ -223,7 +222,6 @@ function cetakTiketESC() {
   // ============================
   // FOOTER
   // ============================
-  esc += "Sisa antrian : " + sisa + "\n\n"
   esc += "Silakan menunggu sampai nomor anda dipanggil.\n\n\n"
 
   // ============================
@@ -245,7 +243,6 @@ wrapper.addEventListener("click", () => {
   const nomorFormat = kode + nextNumber.toString().padStart(3, "0")
 
   localStorage.setItem("lastNumber", nomorFormat)
-  localStorage.setItem("sisaAntrian", nextNumber - 1)
 
   const hariID = [
     "Minggu",
@@ -271,7 +268,6 @@ wrapper.addEventListener("click", () => {
     ":" +
     d.getMinutes().toString().padStart(2, "0")
   document.getElementById("ticketNumber").innerText = nomorFormat
-  document.getElementById("ticketSisa").innerText = nextNumber - 1
 
   cetakTiketESC()
   showTicketPopup()
@@ -285,7 +281,6 @@ function resetHarian() {
   const lastDate = localStorage.getItem("lastDate")
   if (today !== lastDate) {
     localStorage.removeItem("lastNumber")
-    localStorage.setItem("sisaAntrian", 0)
     localStorage.setItem("lastDate", today)
   }
 }
