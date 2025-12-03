@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true;
+        settings.setDomStorageEnabled(true);
 
         settings.setUseWideViewPort(true);
         settings.setLoadWithOverviewMode(false);
