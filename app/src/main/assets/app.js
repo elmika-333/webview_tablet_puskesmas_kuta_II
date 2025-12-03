@@ -1,3 +1,45 @@
+// LOGO PNG BASE64 (tanpa prefix data:image/png;base64,)
+const LOGO_BASE64 = ""
+
+// =========================
+// LOAD LOGO PNG → BASE64
+// =========================
+
+function loadLogoToBase64() {
+  const img = document.getElementById("logoSettings")
+
+  // Pastikan gambar sudah benar-benar load
+  img.onload = () => {
+    try {
+      const canvas = document.createElement("canvas")
+      canvas.width = img.naturalWidth
+      canvas.height = img.naturalHeight
+
+      const ctx = canvas.getContext("2d")
+      ctx.drawImage(img, 0, 0)
+
+      // Convert ke base64 PNG
+      let base64 = canvas
+        .toDataURL("image/png")
+        .replace("data:image/png;base64,", "")
+
+      // Simpan ke global variable
+      window.LOGO_BASE64 = base64
+
+      console.log("LOGO BASE64 SIAP DIPAKAI")
+    } catch (e) {
+      console.log(
+        "GAGAL convert logo (browser PC kena CORS, tapi di WebView aman)"
+      )
+    }
+  }
+}
+
+// Panggil fungsi saat halaman load
+window.addEventListener("load", () => {
+  loadLogoToBase64()
+})
+
 // =========================
 // JAM & TANGGAL
 // =========================
@@ -49,6 +91,9 @@ function openPopup() {
 
   document.getElementById("inputPrinterIP").value =
     localStorage.getItem("printer") || ""
+
+  document.getElementById("inputPortPrinterIP").value =
+    localStorage.getItem("portPrinter") || ""
 
   document.getElementById("inputInstansi").value =
     document.getElementById("instansiText").innerText
@@ -116,12 +161,15 @@ popupBox.addEventListener("click", (e) => {
 function loadSettings() {
   const kode = localStorage.getItem("kode")
   const printer = localStorage.getItem("printer")
+  const portPrinter = localStorage.getItem("portPrinter")
   const s1 = localStorage.getItem("instansi")
   const s2 = localStorage.getItem("layanan")
   const s3 = localStorage.getItem("running")
 
   if (kode) document.getElementById("inputKode").value = kode
   if (printer) document.getElementById("inputPrinterIP").value = printer
+  if (portPrinter)
+    document.getElementById("inputPortPrinterIP").value = portPrinter
   if (s1) document.getElementById("instansiText").innerText = s1
   if (s2) document.getElementById("btnText").innerText = s2
   if (s3) document.getElementById("runText").innerText = s3
@@ -139,6 +187,7 @@ if (!localStorage.getItem("lastDate")) {
 document.getElementById("saveSettings").addEventListener("click", () => {
   const kode = document.getElementById("inputKode").value
   const printer = document.getElementById("inputPrinterIP").value
+  const portPrinter = document.getElementById("inputPortPrinterIP").value
   const instansi = document.getElementById("inputInstansi").value
   const layanan = document.getElementById("inputBtn").value
   const running = document.getElementById("inputRunning").value
@@ -149,6 +198,7 @@ document.getElementById("saveSettings").addEventListener("click", () => {
 
   localStorage.setItem("kode", kode)
   localStorage.setItem("printer", printer)
+  localStorage.setItem("portPrinter", portPrinter)
   localStorage.setItem("instansi", instansi)
   localStorage.setItem("layanan", layanan)
   localStorage.setItem("running", running)
@@ -184,8 +234,79 @@ wrapper.addEventListener("touchend", () => {
 })
 
 // =========================
+// CONFIG CETAK NOMOR ANTRIAN
+// =========================
+
+function getTimeNow() {
+  const d = new Date()
+  return (
+    d.getHours().toString().padStart(2, "0") +
+    ":" +
+    d.getMinutes().toString().padStart(2, "0")
+  )
+}
+
+function printLogo() {
+  if (typeof AndroidPrint !== "undefined") {
+    AndroidPrint.printImage(LOGO_BASE64)
+  }
+}
+
+function printESC(data) {
+  const ip = localStorage.getItem("printer")
+  const port = localStorage.getItem("portPrinter")
+
+  if (typeof AndroidPrint !== "undefined") {
+    AndroidPrint.printText(data, ip, port)
+  }
+}
+
+// =========================
 // GENERATE NOMOR ANTRIAN
 // =========================
+function cetakTiketESC() {
+  const instansi = localStorage.getItem("instansi") || "-"
+  const layanan = localStorage.getItem("layanan") || "-"
+  const nomor = localStorage.getItem("lastNumber") || "-"
+  const sisa = localStorage.getItem("sisaAntrian") || "0"
+
+  let d = new Date()
+  const tanggal =
+    d.getDate().toString().padStart(2, "0") +
+    "-" +
+    (d.getMonth() + 1).toString().padStart(2, "0") +
+    "-" +
+    d.getFullYear()
+  const jam = getTimeNow()
+
+  // PRINT LOGO
+  printLogo()
+
+  // Delay biar logo selesai diproses
+  setTimeout(() => {
+    let esc = ""
+
+    esc += "\x1B\x40" // init
+    esc += "\x1B\x61\x01" // center
+
+    esc += instansi + "\n"
+    esc += tanggal + "   " + jam + "\n\n"
+
+    esc += layanan + "\n"
+    esc += "Nomor Antrian Anda\n\n"
+
+    esc += "\x1D\x21\x11" // besar
+    esc += nomor + "\n"
+    esc += "\x1D\x21\x00"
+
+    esc += "\nSisa antrian : " + sisa + "\n\n"
+    esc += "Silakan menunggu sampai nomor dipanggil.\n\n\n"
+
+    esc += "\x1D\x56\x00" // CUT
+
+    printESC(esc)
+  }, 300)
+}
 
 wrapper.addEventListener("click", () => {
   const kode = localStorage.getItem("kode")
@@ -243,6 +364,9 @@ wrapper.addEventListener("click", () => {
 
   document.getElementById("ticketNumber").innerText = nomorFormat
   document.getElementById("ticketSisa").innerText = nextNumber - 1
+
+  // CETAK TIKET KE PRINTER
+  cetakTiketESC()
 
   // TAMPILKAN POPUP + MULAI COUNTDOWN
   showTicketPopup()
