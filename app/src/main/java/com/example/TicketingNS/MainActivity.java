@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 Socket socket = new Socket();
                 socket.connect(new InetSocketAddress(ip, port), 3000);
                 OutputStream os = socket.getOutputStream();
-                os.write(data.getBytes());
+                os.write(data.getBytes("UTF-8"));
                 os.flush();
                 os.close();
                 socket.close();
@@ -186,23 +186,26 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void printTicketFull(String text) {
             try {
+                // CETAK LOGO DULU
                 InputStream is = ctx.getAssets().open("img/logo2.png");
                 Bitmap bmp = BitmapFactory.decodeStream(is);
                 is.close();
 
                 byte[] logoEsc = Utils.decodeBitmap(bmp);
+                sendRaw(logoEsc);   // Kirim logo dulu
+
+                // CETAK TEXT (UTF-8)
                 byte[] textEsc = text.getBytes("UTF-8");
+                sendRaw(textEsc);   // Kirim teks terpisah
 
-                byte[] finalData = new byte[logoEsc.length + textEsc.length];
-                System.arraycopy(logoEsc, 0, finalData, 0, logoEsc.length);
-                System.arraycopy(textEsc, 0, finalData, logoEsc.length, textEsc.length);
-
-                sendRaw(finalData);
+                // CUT KERTAS
+                sendRaw(new byte[]{0x1D, 0x56, 0x00});
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
     }
 
 
