@@ -248,7 +248,7 @@ function getTimeNow() {
 
 function printLogo() {
   if (typeof AndroidPrint !== "undefined") {
-    AndroidPrint.printImage(LOGO_BASE64)
+    AndroidPrint.printImage(window.LOGO_BASE64)
   }
 }
 
@@ -285,27 +285,28 @@ function cetakTiketESC() {
   // Delay biar logo selesai diproses
   setTimeout(() => {
     let esc = ""
-
-    esc += "\x1B\x40" // init
-    esc += "\x1B\x61\x01" // center
+    esc += "\x1B\x40"
+    esc += "\x1B\x61\x01"
 
     esc += instansi + "\n"
     esc += tanggal + "   " + jam + "\n\n"
-
     esc += layanan + "\n"
     esc += "Nomor Antrian Anda\n\n"
 
-    esc += "\x1D\x21\x11" // besar
+    esc += "\x1D\x21\x11"
     esc += nomor + "\n"
     esc += "\x1D\x21\x00"
 
     esc += "\nSisa antrian : " + sisa + "\n\n"
-    esc += "Silakan menunggu sampai nomor dipanggil.\n\n\n"
-
-    esc += "\x1D\x56\x00" // CUT
+    esc += "Silakan menunggu sampai nomor dipanggil.\n\n\n\n\n\n"
 
     printESC(esc)
-  }, 300)
+
+    // KIRIM CUT setelah semua teks turun
+    setTimeout(() => {
+      printESC("\x1D\x56\x00")
+    }, 200)
+  }, 500) // delay lebih aman dari 300
 }
 
 wrapper.addEventListener("click", () => {
