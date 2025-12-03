@@ -29,7 +29,7 @@ const popup = document.getElementById("settingsPopup")
 const logo = document.getElementById("logoSettings")
 const closeBtn = document.getElementById("closeSettings")
 const popupBox = document.querySelector(".popupBox")
-let blockClose = false // mencegah popup auto close
+let blockClose = false
 
 // =========================
 // OPEN POPUP
@@ -54,7 +54,7 @@ function openPopup() {
 }
 
 // =========================
-// DOUBLE-CLICK DESKTOP / DOUBLE TAP MOBILE
+// DOUBLE TAP / CLICK
 // =========================
 logo.addEventListener("dblclick", (e) => {
   e.stopPropagation()
@@ -67,7 +67,7 @@ logo.addEventListener(
   (e) => {
     e.stopPropagation()
     const now = Date.now()
-    if (now - lastTap < 350) openPopup()
+    if (now - lastTap < 250) openPopup()
     lastTap = now
   },
   { passive: true }
@@ -88,7 +88,7 @@ popup.addEventListener("click", (e) => {
 popupBox.addEventListener("click", (e) => e.stopPropagation())
 
 // =========================
-// LOAD LOCAL STORAGE
+// LOAD SETTINGS
 // =========================
 function loadSettings() {
   const kode = localStorage.getItem("kode")
@@ -136,66 +136,25 @@ document.getElementById("saveSettings").addEventListener("click", () => {
   localStorage.setItem("running", running)
 
   popup.style.display = "none"
+
+  AndroidPrint.savePrinter(printer, portPrinter)
 })
 
 // =========================
-// ANIMASI TOMBOL
+// ANIMASI BUTTON
 // =========================
 const wrapper = document.getElementById("btnWrapper")
 const btn = document.getElementById("mainBtn")
 
-wrapper.addEventListener("mousedown", () => {
-  btn.src = "img/button2.png"
-})
-wrapper.addEventListener("mouseup", () => {
-  btn.src = "img/button1.png"
-})
-wrapper.addEventListener("mouseleave", () => {
-  btn.src = "img/button1.png"
-})
-wrapper.addEventListener("touchstart", () => {
-  btn.src = "img/button2.png"
-})
-wrapper.addEventListener("touchend", () => {
-  btn.src = "img/button1.png"
-})
+wrapper.addEventListener("mousedown", () => (btn.src = "img/button2.png"))
+wrapper.addEventListener("mouseup", () => (btn.src = "img/button1.png"))
+wrapper.addEventListener("mouseleave", () => (btn.src = "img/button1.png"))
+wrapper.addEventListener("touchstart", () => (btn.src = "img/button2.png"))
+wrapper.addEventListener("touchend", () => (btn.src = "img/button1.png"))
+wrapper.addEventListener("touchcancel", () => (btn.src = "img/button1.png"))
 
 // =========================
-// CETAK LOGO & TEXT
-// =========================
-function getTimeNow() {
-  const d = new Date()
-  return (
-    d.getHours().toString().padStart(2, "0") +
-    ":" +
-    d.getMinutes().toString().padStart(2, "0")
-  )
-}
-
-function printLogo() {
-  if (
-    typeof AndroidPrint !== "undefined" &&
-    typeof AndroidPrint.printLogo === "function"
-  ) {
-    try {
-      AndroidPrint.printLogo()
-    } catch (e) {
-      console.log("Gagal print logo:", e)
-    }
-  } else {
-    console.log("AndroidPrint.printLogo tidak tersedia")
-  }
-}
-
-function printESC(data) {
-  const ip = localStorage.getItem("printer")
-  const port = localStorage.getItem("portPrinter")
-  if (typeof AndroidPrint !== "undefined")
-    AndroidPrint.printText(data, ip, port)
-}
-
-// =========================
-// CETAK NOMOR ANTRIAN
+// CETAK TIKET MENGGUNAKAN printTicketFull
 // =========================
 function cetakTiketESC() {
   const instansi = (localStorage.getItem("instansi") || "").toUpperCase()
@@ -210,85 +169,54 @@ function cetakTiketESC() {
     (d.getMonth() + 1).toString().padStart(2, "0") +
     "-" +
     d.getFullYear()
-  const jam = getTimeNow()
+  const jam =
+    d.getHours().toString().padStart(2, "0") +
+    ":" +
+    d.getMinutes().toString().padStart(2, "0")
 
-  setTimeout(() => {
-    let esc = ""
-    esc += "\x1B\x40" // RESET PRINTER
+  const totalWidth = 48
+  const lineTanggal =
+    tanggal + " ".repeat(totalWidth - tanggal.length - jam.length) + jam
 
-    // =====================
-    // LOGO TENGAH
-    // =====================
-    printLogo() // cetak logo dari AndroidPrint
+  let esc = ""
 
-    // =====================
-    // INSTANSI (BOLD, CENTER)
-    // =====================
-    esc += "\x1B\x61\x01" // CENTER
-    esc += "\x1B\x45\x01" + instansi + "\n" // BOLD ON
-    esc += "\x1B\x45\x00" // BOLD OFF
+  esc += "\x1B\x40" // RESET
 
-    // =====================
-    // GARIS LURUS SEBELUM TANGGAL/JAM
-    // =====================
-    esc += "________________________________\n"
+  esc += "\x1B\x61\x01" // CENTER
+  esc += "\x1B\x45\x01" + instansi + "\n"
+  esc += "\x1B\x45\x00"
 
-    // =====================
-    // TANGGAL KIRI - JAM KANAN
-    // =====================
-    esc += "\x1B\x61\x00" + tanggal // LEFT
-    esc += "\x1B\x61\x02" + jam + "\n" // RIGHT
+  esc += "----------------------------------------------\n"
 
-    // =====================
-    // GARIS LURUS SESUDAH TANGGAL/JAM
-    // =====================
-    esc += "________________________________\n"
+  esc += "\x1B\x61\x00" // LEFT
+  esc += lineTanggal + "\n"
 
-    // =====================
-    // JEDA BARIS
-    // =====================
-    esc += "\x1B\x61\x01\n" // CENTER LINE
+  esc += "----------------------------------------------\n\n"
 
-    // =====================
-    // LAYANAN (BOLD, CENTER)
-    // =====================
-    esc += "\x1B\x45\x01" + layanan + "\n" // BOLD ON
-    esc += "\x1B\x45\x00" // BOLD OFF
+  esc += "\x1B\x61\x01" // CENTER
+  esc += "\x1B\x45\x01" + layanan + "\n"
+  esc += "\x1B\x45\x00"
 
-    // =====================
-    // TEKS "Nomor Antrian Anda"
-    // =====================
-    esc += "Nomor Antrian Anda\n\n"
+  esc += "Nomor Antrian Anda\n\n"
 
-    // =====================
-    // NOMOR ANTRIAN BESAR
-    // =====================
-    esc += "\x1D\x21\x11" // DOUBLE HEIGHT + WIDTH
-    esc += nomor + "\n"
-    esc += "\x1D\x21\x00\n" // NORMAL SIZE
+  esc += "\x1D\x21\x11" // BIG
+  esc += nomor + "\n"
+  esc += "\x1D\x21\x00\n"
 
-    // =====================
-    // SISA ANTRIAN
-    // =====================
-    esc += "Sisa antrian : " + sisa + "\n\n"
+  esc += "Sisa antrian : " + sisa + "\n\n"
+  esc += "Silakan menunggu sampai nomor anda dipanggil.\n\n\n"
 
-    // =====================
-    // PESAN
-    // =====================
-    esc += "Silakan menunggu sampai nomor\nantrian anda dipanggil.\n\n\n\n"
-
-    // KIRIM KE PRINTER
-    printESC(esc)
-
-    // CUT PAPER
-    setTimeout(() => {
-      printESC("\x1D\x56\x00")
-    }, 300)
-  }, 500)
+  // ============================
+  // CETAK SEKALI DENGAN LOGO
+  // ============================
+  if (typeof AndroidPrint !== "undefined") {
+    AndroidPrint.printTicketFull(esc)
+    setTimeout(() => AndroidPrint.printText("\x1D\x56\x00"), 300) // CUT
+  }
 }
 
 // =========================
-// BUTTON CETAK
+// TOMBOL CETAK
 // =========================
 wrapper.addEventListener("click", () => {
   const kode = localStorage.getItem("kode") || "P"
@@ -299,7 +227,6 @@ wrapper.addEventListener("click", () => {
   localStorage.setItem("lastNumber", nomorFormat)
   localStorage.setItem("sisaAntrian", nextNumber - 1)
 
-  // UPDATE POPUP STRUK
   const hariID = [
     "Minggu",
     "Senin",
@@ -331,23 +258,21 @@ wrapper.addEventListener("click", () => {
 })
 
 // =========================
-// RESET NOMOR HARIAN
+// RESET HARIAN
 // =========================
 function resetHarian() {
   const today = new Date().toISOString().substring(0, 10)
   const lastDate = localStorage.getItem("lastDate")
   if (today !== lastDate) {
-    const kode = localStorage.getItem("kode") || "P"
-    localStorage.setItem("lastNumber", kode + "001")
+    localStorage.removeItem("lastNumber")
     localStorage.setItem("sisaAntrian", 0)
     localStorage.setItem("lastDate", today)
-    console.log("RESET HARIAN BERHASIL → Nomor kembali ke " + kode + "001")
   }
 }
 setInterval(resetHarian, 1000)
 
 // =========================
-// POPUP STRUK + COUNTDOWN
+// POPUP STRUK
 // =========================
 const ticketPopup = document.getElementById("ticketPopup")
 const closeTicketBtn = document.getElementById("closeTicketBtn")
@@ -370,5 +295,3 @@ function closeTicketPopup() {
   clearInterval(ticketCountdown)
   closeTicketBtn.innerText = "Tutup"
 }
-
-closeTicketBtn.addEventListener("click", closeTicketPopup)

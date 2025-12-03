@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
     // ============================================================
     //                  PRINTER JAVASCRIPT INTERFACE
     // ============================================================
-
     public class AndroidPrint {
         Context ctx;
 
@@ -105,83 +104,66 @@ public class MainActivity extends AppCompatActivity {
             ctx = c;
         }
 
-        // ============================
-        // PRINT TEKS ESC/POS KE PRINTER LAN
-        // ============================
+        @JavascriptInterface
+        public void savePrinter(String ip, String port) {
+            ctx.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+                .edit()
+                .putString("printer", ip)
+                .putString("portPrinter", port)
+                .apply();
+        }
+
         @JavascriptInterface
         public void printText(String data, String ip, String portStr) {
             try {
                 int port = Integer.parseInt(portStr);
-
                 Socket socket = new Socket();
                 socket.connect(new InetSocketAddress(ip, port), 3000);
-
                 OutputStream os = socket.getOutputStream();
-                os.write(data.getBytes("UTF-8"));
+                os.write(data.getBytes());
                 os.flush();
-
                 os.close();
                 socket.close();
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        // ============================
-        // PRINT GAMBAR BASE64 (LOGO) - tetap disimpan jika diperlukan
-        // ============================
         @JavascriptInterface
         public void printImage(String base64) {
             try {
-                // decode base64 PNG
                 byte[] decoded = Base64.decode(base64, Base64.DEFAULT);
                 Bitmap bmp = BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
-
                 if (bmp == null) return;
 
-                // convert ke ESC/POS bitmap
                 byte[] escpos = Utils.decodeBitmap(bmp);
-                sendImageRaw(escpos);
+                sendRaw(escpos);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        // ============================
-        // PRINT LOGO LANGSUNG DARI ASSETS (TANPA BASE64 / TANPA CANVAS)
-        // Dipanggil dari JS: AndroidPrint.printLogo()
-        // ============================
         @JavascriptInterface
         public void printLogo() {
             try {
-                // buka file dari assets/img/logo2.png
                 InputStream is = ctx.getAssets().open("img/logo2.png");
                 Bitmap bmp = BitmapFactory.decodeStream(is);
                 is.close();
 
-                if (bmp == null) return;
-
-                // convert ke ESC/POS bitmap (raster)
                 byte[] escpos = Utils.decodeBitmap(bmp);
-
-                // kirim data ke printer
-                sendImageRaw(escpos);
+                sendRaw(escpos);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        private void sendImageRaw(byte[] imgData) {
+        private void sendRaw(byte[] data) {
             try {
-                String ip = webView.getContext()
-                        .getSharedPreferences("prefs", MODE_PRIVATE)
+                String ip = ctx.getSharedPreferences("prefs", Context.MODE_PRIVATE)
                         .getString("printer", "");
-
-                String portStr = webView.getContext()
-                        .getSharedPreferences("prefs", MODE_PRIVATE)
+                String portStr = ctx.getSharedPreferences("prefs", Context.MODE_PRIVATE)
                         .getString("portPrinter", "9100");
 
                 if (ip == null || ip.isEmpty()) return;
@@ -190,11 +172,9 @@ public class MainActivity extends AppCompatActivity {
 
                 Socket socket = new Socket();
                 socket.connect(new InetSocketAddress(ip, port), 3000);
-
                 OutputStream os = socket.getOutputStream();
-                os.write(imgData);
+                os.write(data);
                 os.flush();
-
                 os.close();
                 socket.close();
 
@@ -202,5 +182,28 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+
+        @JavascriptInterface
+        public void printTicketFull(String text) {
+            try {
+                InputStream is = ctx.getAssets().open("img/logo2.png");
+                Bitmap bmp = BitmapFactory.decodeStream(is);
+                is.close();
+
+                byte[] logoEsc = Utils.decodeBitmap(bmp);
+                byte[] textEsc = text.getBytes("UTF-8");
+
+                byte[] finalData = new byte[logoEsc.length + textEsc.length];
+                System.arraycopy(logoEsc, 0, finalData, 0, logoEsc.length);
+                System.arraycopy(textEsc, 0, finalData, logoEsc.length, textEsc.length);
+
+                sendRaw(finalData);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
+
+
 }
