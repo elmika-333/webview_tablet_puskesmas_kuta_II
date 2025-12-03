@@ -147,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void printLogo() {
             try {
+                // Align center
+                sendRaw(new byte[]{0x1B, 0x61, 0x01}); // CENTER
+
                 InputStream is = ctx.getAssets().open("img/logo2.png");
                 Bitmap bmp = BitmapFactory.decodeStream(is);
                 is.close();
@@ -154,10 +157,17 @@ public class MainActivity extends AppCompatActivity {
                 byte[] escpos = Utils.decodeBitmap(bmp);
                 sendRaw(escpos);
 
+                // New line setelah logo
+                sendRaw("\n\n".getBytes());
+
+                // Kembalikan alignment ke kiri
+                sendRaw(new byte[]{0x1B, 0x61, 0x00});
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
 
         private void sendRaw(byte[] data) {
             try {
@@ -186,25 +196,35 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void printTicketFull(String text) {
             try {
-                // CETAK LOGO DULU
+                // CENTER
+                sendRaw(new byte[]{0x1B, 0x61, 0x01});
+
+                // CETAK LOGO
                 InputStream is = ctx.getAssets().open("img/logo2.png");
                 Bitmap bmp = BitmapFactory.decodeStream(is);
                 is.close();
 
                 byte[] logoEsc = Utils.decodeBitmap(bmp);
-                sendRaw(logoEsc);   // Kirim logo dulu
+                sendRaw(logoEsc);
 
-                // CETAK TEXT (UTF-8)
+                // FEED dua baris
+                sendRaw("\n\n".getBytes());
+
+                // Kembali kiri
+                sendRaw(new byte[]{0x1B, 0x61, 0x00});
+
+                // CETAK TEXT
                 byte[] textEsc = text.getBytes("UTF-8");
-                sendRaw(textEsc);   // Kirim teks terpisah
+                sendRaw(textEsc);
 
-                // CUT KERTAS
+                // CUT
                 sendRaw(new byte[]{0x1D, 0x56, 0x00});
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
 
     }
 
