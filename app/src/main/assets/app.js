@@ -5,10 +5,11 @@ const LOGO_BASE64 = ""
 // LOAD LOGO PNG → BASE64
 // =========================
 
+window.logoReady = false
+
 function loadLogoToBase64() {
   const img = document.getElementById("logoSettings")
 
-  // Pastikan gambar sudah benar-benar load
   img.onload = () => {
     try {
       const canvas = document.createElement("canvas")
@@ -18,19 +19,14 @@ function loadLogoToBase64() {
       const ctx = canvas.getContext("2d")
       ctx.drawImage(img, 0, 0)
 
-      // Convert ke base64 PNG
-      let base64 = canvas
+      window.LOGO_BASE64 = canvas
         .toDataURL("image/png")
         .replace("data:image/png;base64,", "")
 
-      // Simpan ke global variable
-      window.LOGO_BASE64 = base64
-
-      console.log("LOGO BASE64 SIAP DIPAKAI")
+      window.logoReady = true
+      console.log("LOGO BASE64 READY")
     } catch (e) {
-      console.log(
-        "GAGAL convert logo (browser PC kena CORS, tapi di WebView aman)"
-      )
+      console.log("GAGAL convert logo")
     }
   }
 }
@@ -247,6 +243,11 @@ function getTimeNow() {
 }
 
 function printLogo() {
+  if (!window.LOGO_BASE64 || window.LOGO_BASE64.length < 50) {
+    console.log("LOGO belum siap, skip print gambar")
+    return
+  }
+
   if (typeof AndroidPrint !== "undefined") {
     AndroidPrint.printImage(window.LOGO_BASE64)
   }
@@ -265,8 +266,8 @@ function printESC(data) {
 // GENERATE NOMOR ANTRIAN
 // =========================
 function cetakTiketESC() {
-  const instansi = localStorage.getItem("instansi") || "-"
-  const layanan = localStorage.getItem("layanan") || "-"
+  const instansi = (localStorage.getItem("instansi") || "").toUpperCase()
+  const layanan = (localStorage.getItem("layanan") || "").toUpperCase()
   const nomor = localStorage.getItem("lastNumber") || "-"
   const sisa = localStorage.getItem("sisaAntrian") || "0"
 
@@ -279,37 +280,83 @@ function cetakTiketESC() {
     d.getFullYear()
   const jam = getTimeNow()
 
-  // PRINT LOGO
-  printLogo()
+  // CETAK LOGO DI TENGAH
+  printLogo() // dipanggil dulu
 
-  // Delay biar logo selesai diproses
   setTimeout(() => {
     let esc = ""
-    esc += "\x1B\x40"
-    esc += "\x1B\x61\x01"
 
+    // RESET
+    esc += "\x1B\x40"
+
+    // =====================
+    //  INSTANSI (BOLD + CENTER)
+    // =====================
+    esc += "\x1B\x61\x01" // center
+    esc += "\x1B\x45\x01" // bold on
     esc += instansi + "\n"
-    esc += tanggal + "   " + jam + "\n\n"
+    esc += "\x1B\x45\x00" // bold off
+
+    // =====================
+    //  TANGGAL KIRI - JAM KANAN
+    // =====================
+    esc += "\x1B\x61\x00" // left
+    esc += tanggal
+
+    esc += "\x1B\x61\x02" // right
+    esc += jam + "\n"
+
+    // Line spacing kecil
+    esc += "\x1B\x61\x01" // center
+    esc += "\n"
+
+    // =====================
+    //  LAYANAN
+    // =====================
+    esc += "\x1B\x45\x01" // bold
     esc += layanan + "\n"
+    esc += "\x1B\x45\x00" // bold off
+
+    // =====================
+    //  TEXT “Nomor Antrian Anda”
+    // =====================
     esc += "Nomor Antrian Anda\n\n"
 
-    esc += "\x1D\x21\x11"
+    // =====================
+    //  NOMOR ANTRIAN BESAR
+    // =====================
+    esc += "\x1D\x21\x11" // double height + width
     esc += nomor + "\n"
-    esc += "\x1D\x21\x00"
+    esc += "\x1D\x21\x00" // normal
+    esc += "\n"
 
-    esc += "\nSisa antrian : " + sisa + "\n\n"
-    esc += "Silakan menunggu sampai nomor dipanggil.\n\n\n\n\n\n"
+    // =====================
+    //  SISA ANTRIAN
+    // =====================
+    esc += "Sisa antrian : " + sisa + "\n\n"
 
+    // =====================
+    //  PESAN
+    // =====================
+    esc += "Silakan menunggu sampai nomor\n"
+    esc += "antrian anda dipanggil.\n\n\n\n"
+
+    // KIRIM PRINT
     printESC(esc)
 
-    // KIRIM CUT setelah semua teks turun
+    // CUT PAPER
     setTimeout(() => {
       printESC("\x1D\x56\x00")
-    }, 200)
-  }, 500) // delay lebih aman dari 300
+    }, 300)
+  }, 500)
 }
 
 wrapper.addEventListener("click", () => {
+  if (!window.logoReady) {
+    alert("Logo belum siap. Tunggu 1 detik lalu coba lagi.")
+    return
+  }
+
   const kode = localStorage.getItem("kode")
 
   let last = localStorage.getItem("lastNumber")
