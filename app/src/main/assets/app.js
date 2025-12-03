@@ -182,27 +182,49 @@ function cetakTiketESC() {
 
   esc += "\x1B\x40" // RESET
 
+  // ============================
+  // INSTANSI (sedikit diperbesar + tebal + center)
+  // ============================
   esc += "\x1B\x61\x01" // CENTER
-  esc += "\x1B\x45\x01" + instansi + "\n"
-  esc += "\x1B\x45\x00"
+  esc += "\x1B\x45\x01" // BOLD ON
+  esc += "\x1D\x21\x01" // Text a bit bigger
+  esc += instansi + "\n"
+  esc += "\x1D\x21\x00" // Normal size
+  esc += "\x1B\x45\x00" // BOLD OFF
 
-  esc += "_________________________________________________\n"
+  esc += "_______________________________________________\n"
 
+  // ============================
+  // TANGGAL (normal, left)
+  // ============================
   esc += "\x1B\x61\x00" // LEFT
   esc += lineTanggal + "\n"
 
-  esc += "_________________________________________________\n\n"
+  esc += "_______________________________________________\n\n"
 
+  // ============================
+  // LAYANAN (center, sedikit lebih besar)
+  // ============================
   esc += "\x1B\x61\x01" // CENTER
-  esc += "\x1B\x45\x01" + layanan + "\n"
-  esc += "\x1B\x45\x00"
+  esc += "\x1B\x45\x01" // BOLD ON
+  esc += "\x1D\x21\x01" // Slightly bigger
+  esc += layanan + "\n"
+  esc += "\x1D\x21\x00" // Normal size
+  esc += "\x1B\x45\x00" // BOLD OFF
 
   esc += "Nomor Antrian Anda\n\n"
 
-  esc += "\x1D\x21\x11" // BIG
+  // ============================
+  // NOMOR ANTRIAN (lebih besar dari yang lain)
+  // ============================
+  // 0x22 = 2x height + 2x width (besar jelas)
+  esc += "\x1D\x21\x22"
   esc += nomor + "\n"
   esc += "\x1D\x21\x00\n"
 
+  // ============================
+  // FOOTER
+  // ============================
   esc += "Sisa antrian : " + sisa + "\n\n"
   esc += "Silakan menunggu sampai nomor anda dipanggil.\n\n\n"
 
@@ -210,8 +232,8 @@ function cetakTiketESC() {
   // CETAK SEKALI DENGAN LOGO
   // ============================
   if (typeof AndroidPrint !== "undefined") {
-    AndroidPrint.printTicketFull(esc)
-    setTimeout(() => AndroidPrint.printText("\x1D\x56\x00"), 300) // CUT
+    AndroidPrint.printTicketFull(esc + "\n\n")
+    setTimeout(() => AndroidPrint.printText("\x1D\x56\x00"), 1000)
   }
 }
 

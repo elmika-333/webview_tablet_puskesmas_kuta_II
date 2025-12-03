@@ -207,8 +207,8 @@ public class MainActivity extends AppCompatActivity {
                 byte[] logoEsc = Utils.decodeBitmap(bmp);
                 sendRaw(logoEsc);
 
-                // FEED dua baris
-                sendRaw("\n\n".getBytes());
+                // FEED 1 baris
+                sendRaw("\n".getBytes());
 
                 // Kembali kiri
                 sendRaw(new byte[]{0x1B, 0x61, 0x00});
