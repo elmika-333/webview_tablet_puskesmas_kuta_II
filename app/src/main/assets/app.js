@@ -4,19 +4,18 @@ const LOGO_BASE64 = ""
 // =========================
 // LOAD LOGO PNG → BASE64
 // =========================
-
 window.logoReady = false
 
 function loadLogoToBase64() {
   const img = document.getElementById("logoSettings")
 
-  img.onload = () => {
+  function convert() {
     try {
       const canvas = document.createElement("canvas")
       canvas.width = img.naturalWidth
       canvas.height = img.naturalHeight
-
       const ctx = canvas.getContext("2d")
+
       ctx.drawImage(img, 0, 0)
 
       window.LOGO_BASE64 = canvas
@@ -25,9 +24,16 @@ function loadLogoToBase64() {
 
       window.logoReady = true
       console.log("LOGO BASE64 READY")
-    } catch (e) {
-      console.log("GAGAL convert logo")
+    } catch (err) {
+      console.log("GAGAL convert logo", err)
     }
+  }
+
+  // Kalau gambar sudah selesai load → langsung convert
+  if (img.complete && img.naturalWidth > 0) {
+    convert()
+  } else {
+    img.onload = convert
   }
 }
 
@@ -243,11 +249,6 @@ function getTimeNow() {
 }
 
 function printLogo() {
-  if (!window.LOGO_BASE64 || window.LOGO_BASE64.length < 50) {
-    console.log("LOGO belum siap, skip print gambar")
-    return
-  }
-
   if (typeof AndroidPrint !== "undefined") {
     AndroidPrint.printImage(window.LOGO_BASE64)
   }
