@@ -198,7 +198,7 @@ function cetakTiketESC() {
   // TANGGAL (normal, left)
   // ============================
   esc += "\x1B\x61\x00" // LEFT
-  esc += lineTanggal + "\n"
+  esc += lineTanggal
 
   esc += "_______________________________________________\n\n"
 
@@ -208,7 +208,7 @@ function cetakTiketESC() {
   esc += "\x1B\x61\x01" // CENTER
   esc += "\x1B\x45\x01" // BOLD ON
   esc += "\x1D\x21\x01" // Slightly bigger
-  esc += layanan + "\n"
+  esc += layanan + "\n\n"
   esc += "\x1D\x21\x00" // Normal size
   esc += "\x1B\x45\x00" // BOLD OFF
 
